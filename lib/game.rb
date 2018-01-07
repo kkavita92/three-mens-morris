@@ -1,5 +1,7 @@
 class Game
 
+  attr_reader :board
+
   def initialize
     @board = Array.new(3) { Array.new(3, " ") }
     @player = 'X'
@@ -10,7 +12,7 @@ class Game
     puts "START THE GAME"
     print_board
     puts "Enter your move:"
-    get_player_move
+    get_player_positioning
   end
 
   def print_board
@@ -21,16 +23,40 @@ class Game
     puts @board[2].map{ |cell| cell == " " ? "o" : cell }.join("-")
   end
 
-  def get_player_move(move = gets.chomp)
-    play(move)
+  def get_player_positioning(move = gets.chomp)
+    place_piece(move)
   end
 
-  def play(move)
+  def get_player_move(moves = gets.chomp)
+    initial_position, new_position = moves.split(',')
+    move_piece(initial_position, new_position)
+  end
+
+  def move_piece(initial_position, new_position)
+    x, y = convert_move_to_coordinate(new_position)
+    @board[y][x] = @player
+    x, y = convert_move_to_coordinate(initial_position)
+    @board[y][x] = ' '
+    update_game
+  end
+
+  def place_piece(move)
     x, y = convert_move_to_coordinate(move)
     @board[y][x] = @player
+    update_game
+  end
+
+  def update_game
+    check_if_initial_moves_complete
     print_board
     puts "Enter your move:"
-    get_player_move
+    p @all_pieces_placed
+    p @board
+    @all_pieces_placed == :false ? get_player_positioning : get_player_move
+  end
+
+  def check_if_initial_moves_complete
+    @all_pieces_placed = :true if @board.flatten.count('X') == 3
   end
 
   def convert_move_to_coordinate(move)
