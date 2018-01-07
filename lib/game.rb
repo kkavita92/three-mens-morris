@@ -1,7 +1,5 @@
 class Game
 
-  attr_reader :board
-
   VALID_MOVES = {
     1 => [2, 4, 5],
     2 => [1, 3, 5],
@@ -16,8 +14,9 @@ class Game
 
   def initialize
     @board = Array.new(3) { Array.new(3, " ") }
-    @player = 'X'
-    @all_pieces_placed = :false
+    @player = :B
+    @all_black_pieces_placed = :false
+    @all_white_pieces_placed = :false
   end
 
   def start
@@ -38,7 +37,7 @@ class Game
   def valid_move?(initial_position, new_position)
       x, y = convert_move_to_coordinate(new_position)
       w, z = convert_move_to_coordinate(initial_position)
-      @board[z][w] == 'X' && @board[y][x] == " " && VALID_MOVES[initial_position.to_i].include?(new_position.to_i)
+      @board[z][w] == @player && @board[y][x] == " " && VALID_MOVES[initial_position.to_i].include?(new_position.to_i)
   end
 
   def get_player_positioning(move = gets.chomp)
@@ -73,14 +72,22 @@ class Game
   def update_game
     check_if_initial_moves_complete
     print_board
+    switch_player
     puts "Enter your move:"
-    p @all_pieces_placed
-    p @board
-    @all_pieces_placed == :false ? get_player_positioning : get_player_move
+    if @player == :B
+      @all_black_pieces_placed == :false ? get_player_positioning : get_player_move
+    else
+      @all_white_pieces_placed == :false ? get_player_positioning : get_player_move
+    end
+  end
+
+  def switch_player
+    @player == :B ? @player = :W : @player = :B
   end
 
   def check_if_initial_moves_complete
-    @all_pieces_placed = :true if @board.flatten.count('X') == 3
+    @all_black_pieces_placed = :true if @board.flatten.count(:B) == 3
+    @all_white_pieces_placed = :true if @board.flatten.count(:W) == 3
   end
 
   def convert_move_to_coordinate(move)
