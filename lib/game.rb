@@ -2,6 +2,18 @@ class Game
 
   attr_reader :board
 
+  VALID_MOVES = {
+    1 => [2, 4, 5],
+    2 => [1, 3, 5],
+    3 => [2, 5, 6],
+    4 => [1, 5, 7],
+    5 => [1, 2, 3, 4, 6, 7, 8, 9],
+    6 => [3, 5, 9],
+    7 => [4, 5, 8],
+    8 => [5, 7, 9],
+    9 => [5, 6, 8]
+  }
+
   def initialize
     @board = Array.new(3) { Array.new(3, " ") }
     @player = 'X'
@@ -23,13 +35,25 @@ class Game
     puts @board[2].map{ |cell| cell == " " ? "o" : cell }.join("-")
   end
 
+  def valid_move?(initial_position, new_position)
+      x, y = convert_move_to_coordinate(new_position)
+      w, z = convert_move_to_coordinate(initial_position)
+      @board[z][w] == 'X' && @board[y][x] == " " && VALID_MOVES[initial_position.to_i].include?(new_position.to_i)
+  end
+
   def get_player_positioning(move = gets.chomp)
     place_piece(move)
   end
 
   def get_player_move(moves = gets.chomp)
     initial_position, new_position = moves.split(',')
+    return invalidate_move unless valid_move?(initial_position, new_position)
     move_piece(initial_position, new_position)
+  end
+
+  def invalidate_move
+    puts "Move not valid - please try again"
+    get_player_move
   end
 
   def move_piece(initial_position, new_position)
