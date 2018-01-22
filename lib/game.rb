@@ -1,3 +1,5 @@
+require_relative 'rules.rb'
+
 class Game
 
   VALID_MOVES = {
@@ -12,8 +14,9 @@ class Game
     9 => [5, 6, 8]
   }
 
-  def initialize
+  def initialize(rules = Rules.new)
     @board = Array.new(3) { Array.new(3, " ") }
+    @rules = rules
     @player = :B
     @all_black_pieces_placed = :false
     @all_white_pieces_placed = :false
@@ -114,29 +117,10 @@ class Game
   end
 
   def got_winner?(marker)
-    winning_positions.each do |position|
+    @rules.winning_positions(@board).each do |position|
       return true if position == [marker, marker, marker]
     end
     false
-  end
-
-  def winning_positions
-    horizontal_winning_positions + vertical_winning_positions + diagonal_winning_positions
-  end
-
-  def horizontal_winning_positions
-    @board.map { |row| row[0..2] }
-  end
-
-  def vertical_winning_positions
-    @board.transpose.map { |column| column[0..2] }
-  end
-
-  def diagonal_winning_positions
-    [
-      [@board[0][0], @board[1][1], @board[2][2]],
-      [@board[0][2], @board[1][1], @board[2][0]],
-    ]
   end
 
 end
