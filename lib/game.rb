@@ -22,14 +22,14 @@ class Game
   def start
     puts "START THE GAME"
     print_board
-    puts "Enter your move:"
+    puts "#{@player}, please enter your move:"
     get_player_positioning
   end
 
   def print_board
     @board[0..1].each do |row|
       puts row.map { |cell| cell == " " ? "o" : cell }.join("-")
-      puts '|\|/|'
+      puts '|\|/|' #fix this
     end
     puts @board[2].map{ |cell| cell == " " ? "o" : cell }.join("-")
   end
@@ -60,24 +60,28 @@ class Game
     @board[y][x] = @player
     x, y = convert_move_to_coordinate(initial_position)
     @board[y][x] = ' '
-    update_game
+    update_game(@player)
   end
 
   def place_piece(move)
     x, y = convert_move_to_coordinate(move)
     @board[y][x] = @player
-    update_game
+    update_game(@player)
   end
 
-  def update_game
-    check_if_initial_moves_complete
-    print_board
-    switch_player
-    puts "Enter your move:"
-    if @player == :B
-      @all_black_pieces_placed == :false ? get_player_positioning : get_player_move
+  def update_game(last_player)
+    if game_over?(last_player)
+      return :win
     else
-      @all_white_pieces_placed == :false ? get_player_positioning : get_player_move
+      check_if_initial_moves_complete
+      print_board
+      switch_player
+      puts "#{@player}, please enter your move:"
+      if @player == :B
+        @all_black_pieces_placed == :false ? get_player_positioning : get_player_move
+      else
+        @all_white_pieces_placed == :false ? get_player_positioning : get_player_move
+      end
     end
   end
 
@@ -103,6 +107,36 @@ class Game
       "9" => [2, 2]
     }
     coordinate_mapping[move]
+  end
+
+  def game_over?(marker)
+    got_winner?(marker)
+  end
+
+  def got_winner?(marker)
+    winning_positions.each do |position|
+      return true if position == [marker, marker, marker]
+    end
+    false
+  end
+
+  def winning_positions
+    horizontal_winning_positions + vertical_winning_positions + diagonal_winning_positions
+  end
+
+  def horizontal_winning_positions
+    @board.map { |row| row[0..2] }
+  end
+
+  def vertical_winning_positions
+    @board.transpose.map { |column| column[0..2] }
+  end
+
+  def diagonal_winning_positions
+    [
+      [@board[0][0], @board[1][1], @board[2][2]],
+      [@board[0][2], @board[1][1], @board[2][0]],
+    ]
   end
 
 end
